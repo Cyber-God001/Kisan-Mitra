@@ -16,9 +16,9 @@ import datetime  as dt            # to get date and time
 import webbrowser                 # to open and perform web tasks
 import serial                     # for serial communication
 import pywhatkit                  # for more web automation
-from   wikipedia import *         # wikipedia library
-import requests                   # MODULES FOR
-from bs4 import BeautifulSoup     # WEATHER
+#from   wikipedia import *         # wikipedia library
+#import requests                   # MODULES FOR
+#from bs4 import BeautifulSoup     # WEATHER
 
 # Declare robot name (Wake-Up word)
 robot_name = 'mitra'
@@ -34,7 +34,7 @@ voices = engine.getProperty('voices')      # check for voices
 engine.setProperty('voice', voices[2].id)  # indian voice
 engine.setProperty('rate', 180)            # To ensure robot speaks slow enough
 listener = sr.Recognizer()                 # initialize speech recognition API
-set_lang('hi')                             # setting the language of wiki library to hindi
+#set_lang('hi')                             # setting the language of wiki library to hindi
 
 # connect with motor driver board over serial communication
 try:
