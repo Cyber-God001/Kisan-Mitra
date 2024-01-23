@@ -9,6 +9,8 @@ import pywhatkit                  # for more web automation
 import uuid
 import requests as rq
 import json
+from openai import OpenAI
+from googletrans import Translator
 
 
 
@@ -28,110 +30,51 @@ listener = sr.Recognizer()
 
 def listen():
     """ listen to what user says"""
-    try:
-        with sr.Microphone() as source:                         # get input from mic
-            print("Talk>>")
-            voice = listener.listen(source)                     # listen from microphone
-            command = listener.recognize_google(voice).lower()  # use google API
-            # all words lowercase- so that we can process easily
-            #command = command.lower()         
-            print(command)
+    with sr.Microphone() as source:                         # get input from mic
+        print("Talk>>")
+        voice = listener.listen(source)                     # listen from microphone
+        command = listener.recognize_google(voice).lower()  # use google API
+        # all words lowercase- so that we can process easily
+        #command = command.lower()         
+        print(command)
 
-            # look for wake up word in the beginning
-            if (command.split(' ')[0] == robot_name):
-                # if wake up word found....
-                print("[wake-up word found]")
-                process(command)                 # call process funtion to take action
-    except:
-        pass
+        # look for wake up word in the beginning
+        if (command.split(' ')[0] == robot_name):
+            # if wake up word found....
+            print("[wake-up word found]")
+            process(command)                 # call process funtion to take action
+    
 
 
-def generate_headers(cookie: str, chatId: str):
-    headers = {
-        'Origin': 'https://claude.ai',
-        'Content-Type': 'application/json',
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Cookie': cookie
-    }
+def start_talk(client):
+    with open("messages.json") as file:
+        messages = json.load(file)
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=messages
+    )
 
-    if chatId != "":
-        headers['Referer'] = 'https://claude.ai/chat/' + chatId
+    append_message({
+        "role": response.choices[0].message.role,
+        "content": response.choices[0].message.content
+    })
 
-    return headers
-
-
-
-
-def create_chat():
-    new_chat_id = str(uuid.uuid4())
-    env = load_env()
-    print (env.keys())
-    base_url = env["BASE_URL"]
-    organization_id = env["ORGANIZATION_ID"]
-    cookie = env["COOKIE"]
-    print(base_url)
-    request_headers = generate_headers(cookie, "")
-    request_body = {
-        "uuid": new_chat_id,
-        "name": "Mitra"
-    }
-
-    create_chat_response = rq.post(
-        base_url + "/organizations/" + organization_id + "/chat_conversations", headers=request_headers, json=request_body)
-    if create_chat_response.status_code == 201:
-        return new_chat_id
-
-    raise ConnectionRefusedError("Cookie Expire hogya change karlo")
+    return response.choices[0].message.content
 
 
-def send_chat(message: str, chatId: str):
-    env = load_env()
-    base_url = env["BASE_URL"]
-    organization_id = env["ORGANIZATION_ID"]
-    cookie = env["COOKIE"]
+def append_message(message):
+    with open("messages.json") as file:
+        messages = json.load(file)
+    messages.append(message)
 
-    request_headers = generate_headers(cookie, chatId)
-    request_body = {
-        "completion": {
-            "prompt": message,
-            "timezone": "Asia/Calcutta",
-            "model": "claude-2.1"
-        },
-        "organization_uuid": organization_id,
-        "conversation_uuid": chatId,
-        "text": message,
-        "attachments": []
-    }
-
-    chat_response = rq.post(base_url + "/append_message",
-                            headers=request_headers, json=request_body)
-
-    if chat_response.status_code != 200:
-        raise ConnectionRefusedError("Cookie Expire hogya change karlo")
+    with open("messages.json", "w") as file_out:
+        json.dump(messages, file_out)
 
 
-def get_reply(chatId: str):
-    env = load_env()
-    base_url = env["BASE_URL"]
-    organization_id = env["ORGANIZATION_ID"]
-    cookie = env["COOKIE"]
 
-    request_headers = generate_headers(cookie, chatId)
-    reply_response = rq.get(base_url + "/organizations/" + organization_id +
-                            "/chat_conversations/" + chatId, headers=request_headers)
 
-    if reply_response.status_code != 200:
-        raise ConnectionRefusedError("Cookie Expire hogya change karlo")
 
-    data = json.loads(reply_response.text)
-    gi = -1
-    for message in data['chat_messages']:
-        if message['index'] > gi:
-            gi = message['index']
 
-    for message in data['chat_messages']:
-        if message['index'] == gi:
-            return message['text']
 
 
 def process(words):
@@ -240,24 +183,30 @@ def speechtotext():
             #command = command.lower()         
             return command
     except:
-        pass   
+        pass
     
-def load_env():
-    env= {
-        'COOKIE':"sessionKey=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; activitySessionId=22376e33-673a-4d7f-8fda-d89e5246f6f5; __cf_bm=8cYXjxdSnhVlLtKJ.D8BK1azBzfV.sX_ZCKtD.vV4Jw-1705763659-1-AVv9AgL/jEHduQctAZuG+QSjCpquryiijyp1IV95k8ndUfmOKbzg444tN9cw2O74s5o0kjrz4fuJdrwaarISUuE=; cf_clearance=vWhvFVvDV9_bCC90q7f8xHnQlwRp6BiT3Bv0j7DB8dw-1705763660-1-AZN1F6jzSybNo3K3QeXRpUKUMKY9CPZ1LuuybLOAKPK+sfSSl4gzI0/v8b6959YIkw1/UZpBg/YmZJCDiYbRPXk=; __ssid=68137bedde1bae01937e7fc03cd95b5; intercom-session-lupk8zyo=L0RoVTZPWXp5NExOZCsyZExVdTVLN3dEMEFqSkt6cXZabm1SNFFQcVQwRmNxaytnb0E0MkhFYVZpVWFVRFZPdi0tZUpyR2pieHVCR0xqR0xqRDJyLzY5Zz09--217281583efc36d09524de47d7602628e1e9d1d2; intercom-device-id-lupk8zyo=e6524229-b1a6-4ac7-97b4-21c15cb54c51; __stripe_mid=ebd03d84-3220-4603-96bb-18d6554b8285dbcf5c; __stripe_sid=03babdd9-1698-493f-9ee4-9b9c66c97552a1540b",
-        'ORGANIZATION_ID':"cd4e0be6-3ea7-487c-8b59-658a3ea1e092",
-        'BASE_URL':"https://claude.ai/api"
-    }
-    return env
+           
+    
+
 
 if __name__ == '__main__':
-    chat_id=create_chat()
-    while True:
-        user=speechtotext()
-        send_chat(user, chat_id)
-        bot=get_reply(chat_id)
-        talk(bot)
+    client = OpenAI(
+        api_key='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')
+    translator = Translator()
+    
+    while (True):
+        me = speechtotext()
+        print("\nME > " + me + "\n")
 
+        hindi=translator.translate(me, dest='hi')
+        """append_message({
+            "role": "user",
+            "content": hindi
+        })
+        reply = start_talk(client)"""
+        print(hindi)
+        #print("\nGPT > " + reply + "\n")
+        #talk(reply)
 
 
     
