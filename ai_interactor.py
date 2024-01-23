@@ -27,41 +27,32 @@ def append_message(message):
         json.dump(messages, file_out)
 
 
-def get_reply(chatId: str):
-    env = dotenv_values(".env")
-    base_url = env["BASE_URL"]
-    organization_id = env["ORGANIZATION_ID"]
-    cookie = env["COOKIE"]
-
-    request_headers = generate_headers(cookie, chatId)
-    reply_response = rq.get(base_url + "/organizations/" + organization_id +
-                            "/chat_conversations/" + chatId, headers=request_headers)
-
-    if reply_response.status_code != 200:
-        raise ConnectionRefusedError("Cookie Expire hogya change karlo")
-
-    data = json.loads(reply_response.text)
-    gi = -1
-    for message in data['chat_messages']:
-        if message['index'] > gi:
-            gi = message['index']
-
-    for message in data['chat_messages']:
-        if message['index'] == gi:
-            return message['text']
+def translate_to_hindi(message):
+    with open("translator.json") as file:
+        prompt = json.load(file)
+    prompt.append({
+        "role": "user",
+        "content": message
+    })
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=prompt
+    )
+    return response.choices[0].message.content
 
 
 if __name__ == '__main__':
     client = OpenAI(
-        api_key='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')
-    start_talk(client)
+        api_key='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')
     while (True):
         me = input("ME > ")
         if me == "exit":
             break
+        me_hindi = translate_to_hindi(me)
+        print("TRANS > " + me_hindi)
         append_message({
             "role": "user",
-            "content": me
+            "content": me_hindi
         })
         gpt = start_talk(client)
         print("\nGPT > " + gpt + "\n")
