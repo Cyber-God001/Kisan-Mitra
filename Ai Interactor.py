@@ -184,6 +184,20 @@ def speechtotext():
     except:
         pass
     
+def translate_to_hindi(message):
+    with open("translator.json") as file:
+        prompt = json.load(file)
+    prompt.append({
+        "role": "user",
+        "content": message
+    })
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=prompt
+    )
+    return response.choices[0].message.content
+
+
            
     
 
@@ -194,9 +208,11 @@ if __name__ == '__main__':
     while (True):
         me = speechtotext()
         print("\nME > " + me + "\n")
+        me_hindi = translate_to_hindi(me)
+        print("TRANS > " + me_hindi)
         append_message({
             "role": "user",
-            "content": me
+            "content": me_hindi
         })
         reply = start_talk(client)
         print("\nGPT > " + reply + "\n")
