@@ -10,7 +10,6 @@ import uuid
 import requests as rq
 import json
 from openai import OpenAI
-from googletrans import Translator
 
 
 
@@ -192,21 +191,16 @@ def speechtotext():
 if __name__ == '__main__':
     client = OpenAI(
         api_key='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')
-    translator = Translator()
-    
     while (True):
         me = speechtotext()
         print("\nME > " + me + "\n")
-
-        hindi=translator.translate(me, dest='hi')
-        """append_message({
+        append_message({
             "role": "user",
-            "content": hindi
+            "content": me
         })
-        reply = start_talk(client)"""
-        print(hindi)
-        #print("\nGPT > " + reply + "\n")
-        #talk(reply)
+        reply = start_talk(client)
+        print("\nGPT > " + reply + "\n")
+        talk(reply)
 
 
     
