@@ -145,5 +145,5 @@ if __name__ == '__main__':
             talk(gpt_reply, providers['engine'])
         else:
             print("\nGPT > " + reply['text'] + "\n")
-            talk(reply['text'])
+            talk(reply['text'],providers['engine'])
             webbrowser.open(reply['link'])
