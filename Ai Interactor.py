@@ -159,7 +159,7 @@ def process(words):
         talk("ये रहे आस पास के डीलर के नाम और संपर्क विवरण")
         url= f"file:///G:/Downloads/SeedReport.html"
         webbrowser.open(url)
-        return # now check for matches
+        return 
     
     else:
         talk(response)
@@ -174,12 +174,10 @@ def talk(sentence):
 
 def speechtotext():
     try:
-        with sr.Microphone() as source:                         # get input from mic
+        with sr.Microphone() as source:
             print("Talk>>")
-            voice = listener.listen(source)                     # listen from microphone
-            command = listener.recognize_google(voice).lower()  # use google API
-            # all words lowercase- so that we can process easily
-            #command = command.lower()         
+            voice = listener.listen(source)                     
+            command = listener.recognize_google(voice).lower()  
             return command
     except:
         pass

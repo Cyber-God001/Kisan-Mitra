@@ -35,13 +35,13 @@ engine.setProperty('voice', voices[2].id)  # indian voice
 engine.setProperty('rate', 180)            # To ensure robot speaks slow enough
 listener = sr.Recognizer()                 # initialize speech recognition API
 # set_lang('hi')                             # setting the language of wiki library to hindi
-
+sou
 # connect with motor driver board over serial communication
-try:
-    port = serial.Serial("COM11", 9600)
+"""try:
+    port = serial.Serial("/dev/tty/ACM0", 9600)
     print("Phycial body, connected.")
 except:
-    print("Unable to connect to my physical body")
+    print("Unable to connect to my physical body")"""
 
 
 def listen():
