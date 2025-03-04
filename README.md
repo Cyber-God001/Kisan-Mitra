@@ -1,6 +1,5 @@
 # Kisan Mitra
 
-![Kisan Mitra](https://repository-image-url.com)  
 *A Smart Agricultural Assistance System*
 
 ## 🚀 About the Project
