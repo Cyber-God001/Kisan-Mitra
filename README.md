@@ -63,6 +63,7 @@ We welcome contributions! Follow these steps:
 ## 📩 Contact
 For any queries, reach out to:
 - **Sachin Kumar** (Project Maintainer) - [GitHub](https://github.com/Cyber-God001)
+-  **Pradyumna Raj Chaudhary** (Project Maintainer) - [Linkedin]([https://www.linkedin.com/in/pradyumna-raj-chaudhary/])
 - Email: [cyber.pvtlogin@proton.me](mailto:cyber.pvtlogin@proton.me)
 
 ---
